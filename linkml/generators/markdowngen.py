@@ -443,7 +443,10 @@ class MarkdownGenerator(Generator):
                 values = examples_by_description[description]
 
                 example_text = "Example"
-                if len(values) > 0:
+                if len(values) == 0:
+                    # If there are no values, display nothing.
+                    continue
+                elif len(values) > 1:
                     example_text = "Examples"
 
                 if description == '':
