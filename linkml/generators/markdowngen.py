@@ -342,7 +342,7 @@ class MarkdownGenerator(Generator):
             # todos
             # notes
             prop_list('Comments', obj.comments)
-            prop_list('Examples', obj.examples)
+            prop_list('Examples', obj.examples, lambda e: f"{e.value}{f' ({e.description})' if e.description else ''}".strip())
             prop_list('In Subsets', obj.in_subset)
             # from_schema
             # imported_from
