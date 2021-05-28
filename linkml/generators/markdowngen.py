@@ -9,6 +9,7 @@ from jsonasobj2 import JsonObj, values
 from linkml.generators.yumlgen import YumlGenerator
 from linkml_runtime.linkml_model.meta import SchemaDefinition, ClassDefinition, SlotDefinition, Element, ClassDefinitionName, \
     TypeDefinition, EnumDefinition, SubsetDefinition
+from linkml_model.types import Uriorcurie
 from linkml_runtime.utils.formatutils import camelcase, be, underscore
 from linkml.utils.generator import Generator, shared_arguments
 from linkml.utils.typereferences import References
@@ -429,6 +430,22 @@ class MarkdownGenerator(Generator):
             self.bullet(f'Example: {getattr(example, "value", " ")} {getattr(example, "description", " ")}', level=1)
         # if slot.name not in self.own_slot_names(cls):
         #     self.bullet(f'inherited from: {self.class_link(slot.domain)}', level=1)
+
+        # Display mappings
+        def display_mappings(mapping_type: str, mappings: list[Uriorcurie]):
+            if len(mappings) == 0:
+                return
+
+            for mapping in mappings:
+                self.bullet(f'{mapping_type}: {mapping}')
+
+        display_mappings('Mapping', cls.mappings)
+        display_mappings('Exact mapping', cls.exact_mappings)
+        display_mappings('Close mappings', cls.close_mappings)
+        display_mappings('Narrow mapping', cls.narrow_mappings)
+        display_mappings('Broad mapping', cls.broad_mappings)
+        display_mappings('Related mapping', cls.related_mappings)
+
         if slot.in_subset:
             ssl = ','.join(slot.in_subset)
             self.bullet(f'in subsets: ({ssl})', level=1)
@@ -567,11 +584,11 @@ class MarkdownGenerator(Generator):
         elif isinstance(ref, TypeDefinition):
             return self.type_link(ref, after_link=after_link, use_desc=use_desc, add_subset=add_subset)
         elif isinstance(ref, EnumDefinition):
-            return self.type_link(ref, after_link=after_link, use_desc=use_desc, add_subset=add_subset) 
+            return self.type_link(ref, after_link=after_link, use_desc=use_desc, add_subset=add_subset)
         elif ref in self.schema.classes:
             return self.class_link(ref, after_link=after_link, use_desc=use_desc, add_subset=add_subset)
         elif ref in self.schema.enums:
-            return self.enum_link(ref, after_link=after_link, use_desc=use_desc, add_subset=add_subset) 
+            return self.enum_link(ref, after_link=after_link, use_desc=use_desc, add_subset=add_subset)
         else:
             return self.type_link(ref, after_link=after_link, use_desc=use_desc, add_subset=add_subset)
 
