@@ -429,13 +429,18 @@ class MarkdownGenerator(Generator):
         #for example in slot.examples:
         #    self.bullet(f'Example: {getattr(example, "value", " ")} {getattr(example, "description", " ")}', level=1)
         if slot.examples:
-            def example_to_tuple(example: Example) -> (str, str):
-                """ Returns (description, value) for examples. description will be '' if one is not specified. """
-                return (getattr(example, "description") or ''), (getattr(example, "value") or '')
+            examples_by_description = {}
+            for example in slot.examples:
+                value = getattr(example, "value") or ''
+                description = getattr(example, "description") or ''
 
-            example_tuples = dict(map(example_to_tuple, slot.examples))
-            for description in example_tuples.keys():
-                values = example_tuples[description]
+                if description not in examples_by_description:
+                    examples_by_description[description] = []
+
+                examples_by_description[description].append(value)
+
+            for description in examples_by_description.keys():
+                values = examples_by_description[description]
 
                 example_text = "Example"
                 if len(values) > 0:
