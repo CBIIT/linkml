@@ -434,6 +434,9 @@ class MarkdownGenerator(Generator):
                 value = getattr(example, "value") or ''
                 description = getattr(example, "description") or ''
 
+                if value.strip() == '':
+                    continue
+
                 if description not in examples_by_description:
                     examples_by_description[description] = []
 
