@@ -426,8 +426,22 @@ class MarkdownGenerator(Generator):
         self.bullet(f'Range: {self.class_type_link(slot.range)}', level=1)
         # if slot.subproperty_of:
         #     self.bullet(f'edge label: {self.slot_link(slot.subproperty_of)}', level=1)
-        for example in slot.examples:
-            self.bullet(f'Example: {getattr(example, "value", " ")} {getattr(example, "description", " ")}', level=1)
+        #for example in slot.examples:
+        #    self.bullet(f'Example: {getattr(example, "value", " ")} {getattr(example, "description", " ")}', level=1)
+        if slot.examples:
+            def example_to_tuple(example: Example) -> (str, str):
+                """ Returns (description, value) for examples. description will be '' if one is not specified. """
+                return (getattr(example, "description") or ''), (getattr(example, "value") or '')
+
+            example_tuples = dict(map(example_to_tuple, slot.examples))
+            for description in example_tuples.keys():
+                value = example_tuples[description]
+
+                if description == '':
+                    self.bullet(f'Example: {value}', level=1)
+                else:
+                    self.bullet(f'Example ({description}): {value}', level=1)
+
         # if slot.name not in self.own_slot_names(cls):
         #     self.bullet(f'inherited from: {self.class_link(slot.domain)}', level=1)
 
