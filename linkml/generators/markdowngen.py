@@ -432,19 +432,19 @@ class MarkdownGenerator(Generator):
         #     self.bullet(f'inherited from: {self.class_link(slot.domain)}', level=1)
 
         # Display mappings
-        def display_mappings(mapping_type: str, mappings: list[Uriorcurie]):
+        def display_mappings(mapping_type: str, mappings):
             if len(mappings) == 0:
                 return
 
             for mapping in mappings:
-                self.bullet(f'{mapping_type}: {mapping}')
+                self.bullet(f'{mapping_type}: {mapping}', level=1)
 
-        display_mappings('Mapping', cls.mappings)
-        display_mappings('Exact mapping', cls.exact_mappings)
-        display_mappings('Close mappings', cls.close_mappings)
-        display_mappings('Narrow mapping', cls.narrow_mappings)
-        display_mappings('Broad mapping', cls.broad_mappings)
-        display_mappings('Related mapping', cls.related_mappings)
+        display_mappings('Mapping', slot.mappings)
+        display_mappings('Exact mapping', slot.exact_mappings)
+        display_mappings('Close mappings', slot.close_mappings)
+        display_mappings('Narrow mapping', slot.narrow_mappings)
+        display_mappings('Broad mapping', slot.broad_mappings)
+        display_mappings('Related mapping', slot.related_mappings)
 
         if slot.in_subset:
             ssl = ','.join(slot.in_subset)
