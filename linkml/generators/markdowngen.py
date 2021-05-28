@@ -435,12 +435,16 @@ class MarkdownGenerator(Generator):
 
             example_tuples = dict(map(example_to_tuple, slot.examples))
             for description in example_tuples.keys():
-                value = example_tuples[description]
+                values = example_tuples[description]
+
+                example_text = "Example"
+                if len(values) > 0:
+                    example_text = "Examples"
 
                 if description == '':
-                    self.bullet(f'Example: {value}', level=1)
+                    self.bullet(f'{example_text}: {", ".join(values)}', level=1)
                 else:
-                    self.bullet(f'Example ({description}): {value}', level=1)
+                    self.bullet(f'{example_text} ({description}): {", ".join(values)}', level=1)
 
         # if slot.name not in self.own_slot_names(cls):
         #     self.bullet(f'inherited from: {self.class_link(slot.domain)}', level=1)
