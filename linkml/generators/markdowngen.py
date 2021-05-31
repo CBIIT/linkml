@@ -150,7 +150,7 @@ class MarkdownGenerator(Generator):
                     for sn in sorted(self.synopsis.classrefs[cls.name].slotrefs):
                         slot = self.schema.slots[sn]
                         if slot.range == cls.name:
-                            self.bullet(f' **{self.class_link(slot.domain)}** '
+                            self.bullet(f' **{self.class_link(slot.domain)}** ➞'
                                         f'*{self.slot_link(slot, add_subset=False)}*{self.predicate_cardinality(slot)}  '
                                         f'**{self.class_type_link(slot.range)}**')
 
