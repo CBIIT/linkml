@@ -468,12 +468,12 @@ class MarkdownGenerator(Generator):
             for mapping in mappings:
                 self.bullet(f'{mapping_type}: {mapping}', level=1)
 
-        display_mappings('Mapping', slot.mappings)
-        display_mappings('Exact mapping', slot.exact_mappings)
-        display_mappings('Close mappings', slot.close_mappings)
-        display_mappings('Narrow mapping', slot.narrow_mappings)
-        display_mappings('Broad mapping', slot.broad_mappings)
-        display_mappings('Related mapping', slot.related_mappings)
+        #display_mappings('Mapping', slot.mappings)
+        #display_mappings('Exact mapping', slot.exact_mappings)
+        #display_mappings('Close mappings', slot.close_mappings)
+        #display_mappings('Narrow mapping', slot.narrow_mappings)
+        #display_mappings('Broad mapping', slot.broad_mappings)
+        #display_mappings('Related mapping', slot.related_mappings)
 
         if slot.in_subset:
             ssl = ','.join(slot.in_subset)
