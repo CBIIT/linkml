@@ -3,7 +3,7 @@ from typing import Union, TextIO, Optional, Dict, Tuple
 
 import click
 from jsonasobj2 import JsonObj, as_json
-from linkml_runtime.linkml_model.meta import SchemaDefinition, ClassDefinition, SlotDefinition
+from linkml_runtime.linkml_model.meta import SchemaDefinition, ClassDefinition, SlotDefinition, EnumDefinition
 from linkml_runtime.utils.formatutils import camelcase, be, underscore
 
 from linkml.utils.generator import Generator, shared_arguments
@@ -72,11 +72,26 @@ class JsonSchemaGenerator(Generator):
     def end_class(self, cls: ClassDefinition) -> None:
         self.schemaobj.definitions[camelcase(cls.name)] = self.clsobj
 
+    def visit_enum(self, enum: EnumDefinition) -> bool:
+        # TODO: this only works with explicitly permitted values. It will need to be extended to
+        # support other pv_formula
+        permissible_values_texts = list(map(lambda pv: pv.text, enum.permissible_values or []))
+        if len(permissible_values_texts) == 0:
+            return
+
+        self.schemaobj.definitions[camelcase(enum.name)] = JsonObj(
+            title=camelcase(enum.name),
+            type='string',
+            enum=permissible_values_texts,
+            description=be(enum.description))
+
     def visit_class_slot(self, cls: ClassDefinition, aliased_slot_name: str, slot: SlotDefinition) -> None:
         fmt = None
         if slot.range in self.schema.types:
             (rng, fmt) = json_schema_types.get(self.schema.types[slot.range].base.lower(), ("string", None))
         elif slot.range in self.schema.classes and slot.inlined:
+            rng = f"#/definitions/{camelcase(slot.range)}"
+        elif slot.range in self.schema.enums:
             rng = f"#/definitions/{camelcase(slot.range)}"
         else:
             rng = "string"
