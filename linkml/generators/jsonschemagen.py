@@ -75,7 +75,7 @@ class JsonSchemaGenerator(Generator):
     def visit_enum(self, enum: EnumDefinition) -> bool:
         # TODO: this only works with explicitly permitted values. It will need to be extended to
         # support other pv_formula
-        permissible_values_texts = list(map(lambda pv: pv.text, enum.permissible_values or []))
+        permissible_values_texts = list(map(lambda pv: pv.text, (enum.permissible_values or {}).values()))
         if len(permissible_values_texts) == 0:
             return
 
