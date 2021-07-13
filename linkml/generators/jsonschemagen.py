@@ -3,7 +3,7 @@ from typing import Union, TextIO, Optional, Dict, Tuple
 
 import click
 from jsonasobj2 import JsonObj, as_json
-from linkml_runtime.linkml_model.meta import SchemaDefinition, ClassDefinition, SlotDefinition, EnumDefinition
+from linkml_runtime.linkml_model.meta import SchemaDefinition, ClassDefinition, SlotDefinition, EnumDefinition, PermissibleValue, PermissibleValueText
 from linkml_runtime.utils.formatutils import camelcase, be, underscore
 
 from linkml.utils.generator import Generator, shared_arguments
@@ -75,9 +75,17 @@ class JsonSchemaGenerator(Generator):
     def visit_enum(self, enum: EnumDefinition) -> bool:
         # TODO: this only works with explicitly permitted values. It will need to be extended to
         # support other pv_formula
-        permissible_values_texts = list(map(lambda pv: pv.text, (enum.permissible_values or {}).values()))
-        if len(permissible_values_texts) == 0:
-            return
+
+        def extract_permissible_text(pv):
+            if type(pv) is str:
+                return pv
+            if type(pv) is PermissibleValue:
+                return pv.text.code
+            if type(pv) is PermissibleValueText:
+                return pv
+            raise ValueError(f'Invalid permissible value in enum {enum}: {pv}')
+
+        permissible_values_texts = list(map(extract_permissible_text, enum.permissible_values or []))
 
         self.schemaobj.definitions[camelcase(enum.name)] = JsonObj(
             title=camelcase(enum.name),
@@ -85,48 +93,46 @@ class JsonSchemaGenerator(Generator):
             enum=permissible_values_texts,
             description=be(enum.description))
 
-    def visit_class_slot(self, cls: ClassDefinition, aliased_slot_name: str, slot: SlotDefinition) -> None:
-        fmt = None
-        if slot.range in self.schema.types:
-            (rng, fmt) = json_schema_types.get(self.schema.types[slot.range].base.lower(), ("string", None))
-        elif slot.range in self.schema.classes and slot.inlined:
-            rng = f"#/definitions/{camelcase(slot.range)}"
-        elif slot.range in self.schema.enums:
-            rng = f"#/definitions/{camelcase(slot.range)}"
-        else:
-            rng = "string"
 
-        if rng == 'int':
-            rng = 'integer'
-        elif rng == 'Bool':
-            rng = 'boolean'
-        elif rng == 'str':
-            rng = 'string'
-        elif rng == 'float' or rng == 'double':
-            rng = 'number'
-        elif not rng.startswith('#'):
-            # URIorCURIE, etc
-            rng = 'string'
+    def visit_class_slot(self, cls: ClassDefinition, aliased_slot_name: str, slot: SlotDefinition) -> None:
+        typ = None          # JSON Schema type (https://json-schema.org/understanding-json-schema/reference/type.html)
+        reference = None    # Reference to a JSON schema entity (https://json-schema.org/understanding-json-schema/structuring.html#ref)
+        fmt = None          # JSON Schema format (https://json-schema.org/understanding-json-schema/reference/string.html#format)
+        if slot.range in self.schema.types:
+            (typ, fmt) = json_schema_types.get(self.schema.types[slot.range].base.lower(), ("string", None))
+        elif slot.range in self.schema.enums:
+            reference = f"#/definitions/{camelcase(slot.range)}"
+            typ = 'object'
+        elif slot.range in self.schema.classes and slot.inlined:
+            reference = f"#/definitions/{camelcase(slot.range)}"
+            typ = 'object'
+        else:
+            typ = "string"
 
         if slot.inlined:
             # If inline we have to include redefined slots
             ref = JsonObj()
-            ref['$ref'] = rng
+            ref['$ref'] = reference
             if slot.multivalued:
                 prop = JsonObj(type="array", items=ref)
             else:
                 prop = ref
         else:
             if slot.multivalued:
-                if fmt is None:
-                    prop = JsonObj(type="array", items={'type': rng})
+                if reference is not None:
+                    prop = JsonObj(type="array", items={'$ref': reference})
+                elif fmt is None:
+                    prop = JsonObj(type="array", items={'type': typ})
                 else:
-                    prop = JsonObj(type="array", items={'type': rng, 'format': fmt})
+                    prop = JsonObj(type="array", items={'type': typ, 'format': fmt})
             else:
-                if fmt is None:
-                    prop = JsonObj(type=rng)
+                if reference is not None:
+                    prop = JsonObj({'$ref': reference})
+                elif fmt is None:
+                    prop = JsonObj(type=typ)
                 else:
-                    prop = JsonObj(type=rng, format=fmt)
+                    prop = JsonObj(type=typ, format=fmt)
+
         if slot.description:
             prop.description = slot.description
         if slot.required:
