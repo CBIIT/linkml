@@ -9,7 +9,6 @@ from jsonasobj2 import JsonObj, values
 from linkml.generators.yumlgen import YumlGenerator
 from linkml_runtime.linkml_model.meta import SchemaDefinition, ClassDefinition, SlotDefinition, Element, ClassDefinitionName, \
     TypeDefinition, EnumDefinition, SubsetDefinition
-from linkml_model.types import Uriorcurie
 from linkml_runtime.utils.formatutils import camelcase, be, underscore
 from linkml.utils.generator import Generator, shared_arguments
 from linkml.utils.typereferences import References
