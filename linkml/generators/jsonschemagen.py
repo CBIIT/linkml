@@ -90,19 +90,12 @@ class JsonSchemaGenerator(Generator):
         if slot.range in self.schema.types:
             (rng, fmt) = json_schema_types.get(self.schema.types[slot.range].base.lower(), ("string", None))
         elif slot.range in self.schema.classes and slot.inlined:
-        slot_is_inlined = slot.inlined
-
-        if slot.range in self.schema.classes and slot_is_inlined:
             rng = f"#/definitions/{camelcase(slot.range)}"
         elif slot.range in self.schema.enums:
-            # Enumerations should always be inlined.
-            slot_is_inlined = True
             rng = f"#/definitions/{camelcase(slot.range)}"
         else:
             rng = "string"
 
-        if slot.inlined:
-        # translate to json-schema builtins
         if rng == 'int':
             rng = 'integer'
         elif rng == 'Bool':
@@ -115,7 +108,7 @@ class JsonSchemaGenerator(Generator):
             # URIorCURIE, etc
             rng = 'string'
 
-        if slot_is_inlined:
+        if slot.inlined:
             # If inline we have to include redefined slots
             ref = JsonObj()
             ref['$ref'] = rng
