@@ -22,7 +22,7 @@ def assert_mdfile_contains(filename, text, after=None, description=None) -> None
                         found = True
             if after is not None and after in line:
                 is_after = True
-    assert found
+    assert found, f"Searching for text '{text}' in Markdown file {filename}"
 
 class MarkdownGeneratorTestCase(unittest.TestCase):
 
@@ -46,6 +46,13 @@ class MarkdownGeneratorTestCase(unittest.TestCase):
         assert_mdfile_contains('has_medical_history.md', 'MedicalEvent', after='Domain and Range')
         assert_mdfile_contains('has_medical_history.md', 'subset B', after='Other properties')
 
+        assert_mdfile_contains('mappings.md',
+                               '| [Place](Place.md) | Direct | [sdo:Place](https://schema.org/Place) |',
+                               after='#### [Place](Place.md)')
+
+        assert_mdfile_contains('mappings.md',
+                               '| [married to](married_to.md) | Direct | [sdo:spouse](https://schema.org/spouse) |',
+                               after='#### [MarriageEvent](MarriageEvent.md)')
 
 if __name__ == '__main__':
     unittest.main()
