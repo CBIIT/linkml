@@ -97,6 +97,16 @@ class MarkdownGenerator(Generator):
 
                         self.bullet(self.type_link(typ, after_link=f' ({typ_typ})', use_desc=True))
 
+        with open(self.exist_warning(directory, 'mappings.md'), 'w') as ixfile:
+            with redirect_stdout(ixfile):
+                self.frontmatter(f"{self.schema.name} schema mappings")
+
+                self.header(3, 'Classes')
+                for cls in sorted(self.schema.classes.values(), key=lambda c: c.name):
+                    if not cls.is_a and not cls.mixin and self.is_secondary_ref(cls.name):
+                        self.class_hier(cls)
+
+
     def visit_class(self, cls: ClassDefinition) -> bool:
         if self.gen_classes and cls.name not in self.gen_classes:
             return False
