@@ -101,23 +101,42 @@ class MarkdownGenerator(Generator):
             with redirect_stdout(ixfile):
                 self.frontmatter(f"{self.schema.name} schema mappings")
 
-                def display_mappings(cls_mapping, level=0):
-                    # Display information on this class.
-                    self.bullet(self.class_link(cls_mapping, use_desc=True), level)
-
-                    for mapping in cls_mapping.mappings:
-                        self.bullet(f"{self.xlink(mapping)} {self.to_uri(mapping)}")
-
-                    # Recurse through subclasses
-                    if cls_mapping.name in sorted(self.synopsis.isarefs):
-                        for child in sorted(self.synopsis.isarefs[cls_mapping.name].classrefs):
-                            display_mappings(self.schema.classes[child], level + 1)
-
                 self.header(3, 'Classes')
                 for cls in sorted(self.schema.classes.values(), key=lambda c: c.name):
-                    if not cls.is_a and not cls.mixin and self.is_secondary_ref(cls.name):
-                        display_mappings(cls)
+                    # if not cls.is_a and not cls.mixin and self.is_secondary_ref(cls.name):
+                    # Display information on this class.
+                    self.header(4, self.class_link(cls, use_desc=False))
 
+                    #desc = be(cls.description).strip()
+                    #if desc != '':
+                    #    self.para(f'Description: {desc}')
+
+                    # Looks like we don't need {self.to_uri(mapping)}
+
+                    mappings = []
+
+                    for mapping in cls.exact_mappings:
+                        mappings.append((self.class_link(cls, use_desc=False), "Direct", self.xlink(mapping)))
+
+                    for mapping in cls.close_mappings:
+                        mappings.append((self.class_link(cls, use_desc=False), "Indirect", self.xlink(mapping)))
+
+                    # Lets go through the slots.
+                    for slot_name in cls.slots:
+                        slot = self.slot_for(slot_name)
+                        for mapping in slot.exact_mappings:
+                            mappings.append((self.slot_link(slot, use_desc=False), "Direct", self.xlink(mapping)))
+
+                        for mapping in slot.close_mappings:
+                            mappings.append((self.slot_link(slot, use_desc=False), "Indirect", self.xlink(mapping)))
+
+                    # Display only if there are any mappings left over.
+                    if len(mappings) > 0:
+                        print("| Source | Mapping type | Destination |")
+                        print("| --- | --- | --- |")
+
+                        for (src, typ, dest) in mappings:
+                            print(f"| {src} | {typ} | {dest} |")
 
     def visit_class(self, cls: ClassDefinition) -> bool:
         if self.gen_classes and cls.name not in self.gen_classes:
