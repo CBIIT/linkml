@@ -101,10 +101,22 @@ class MarkdownGenerator(Generator):
             with redirect_stdout(ixfile):
                 self.frontmatter(f"{self.schema.name} schema mappings")
 
+                def display_mappings(cls_mapping, level=0):
+                    # Display information on this class.
+                    self.bullet(self.class_link(cls_mapping, use_desc=True), level)
+
+                    for mapping in cls_mapping.mappings:
+                        self.bullet(f"{self.xlink(mapping)} {self.to_uri(mapping)}")
+
+                    # Recurse through subclasses
+                    if cls_mapping.name in sorted(self.synopsis.isarefs):
+                        for child in sorted(self.synopsis.isarefs[cls_mapping.name].classrefs):
+                            display_mappings(self.schema.classes[child], level + 1)
+
                 self.header(3, 'Classes')
                 for cls in sorted(self.schema.classes.values(), key=lambda c: c.name):
                     if not cls.is_a and not cls.mixin and self.is_secondary_ref(cls.name):
-                        self.class_hier(cls)
+                        display_mappings(cls)
 
 
     def visit_class(self, cls: ClassDefinition) -> bool:
