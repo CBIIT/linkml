@@ -21,6 +21,7 @@ imports:
   - linkml:types
   - core
 prefixes:
+  sdo: https://schema.org/
   pav: http://purl.org/pav/
   dce: http://purl.org/dc/elements/1.1/
   lego: http://geneontology.org/lego/
@@ -82,6 +83,7 @@ classes:
       - name
 
   Place:
+    exact_mappings: sdo:Place
     mixins:
       - HasAliases
     slots:
@@ -196,6 +198,7 @@ slots:
     in_subset:
       - subset B
   married to:
+    exact_mappings: sdo:spouse
     range: Person
   in location:
     range: Place
