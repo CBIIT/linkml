@@ -116,19 +116,19 @@ class MarkdownGenerator(Generator):
                     mappings = []
 
                     for mapping in cls.exact_mappings:
-                        mappings.append((self.class_link(cls, use_desc=False), "Direct", self.xlink(mapping)))
+                        mappings.append((self.class_link(cls, use_desc=False), "Direct", f"[{mapping}]({self.to_uri(mapping)})"))
 
                     for mapping in cls.close_mappings:
-                        mappings.append((self.class_link(cls, use_desc=False), "Indirect", self.xlink(mapping)))
+                        mappings.append((self.class_link(cls, use_desc=False), "Indirect", f"[{mapping}]({self.to_uri(mapping)})"))
 
                     # Lets go through the slots.
                     for slot_name in cls.slots:
                         slot = self.slot_for(slot_name)
                         for mapping in slot.exact_mappings:
-                            mappings.append((self.slot_link(slot, use_desc=False), "Direct", self.xlink(mapping)))
+                            mappings.append((self.slot_link(slot, use_desc=False), "Direct", f"[{mapping}]({self.to_uri(mapping)})"))
 
                         for mapping in slot.close_mappings:
-                            mappings.append((self.slot_link(slot, use_desc=False), "Indirect", self.xlink(mapping)))
+                            mappings.append((self.slot_link(slot, use_desc=False), "Indirect", f"[{mapping}]({self.to_uri(mapping)})"))
 
                     # Display only if there are any mappings left over.
                     if len(mappings) == 0:
