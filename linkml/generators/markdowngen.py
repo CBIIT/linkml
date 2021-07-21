@@ -131,7 +131,9 @@ class MarkdownGenerator(Generator):
                             mappings.append((self.slot_link(slot, use_desc=False), "Indirect", self.xlink(mapping)))
 
                     # Display only if there are any mappings left over.
-                    if len(mappings) > 0:
+                    if len(mappings) == 0:
+                        print("No mappings included in schema.")
+                    else:
                         print("| Source | Mapping type | Destination |")
                         print("| --- | --- | --- |")
 
