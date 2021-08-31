@@ -2,6 +2,7 @@ import keyword
 import os
 import re
 from typing import Optional, Tuple, List, Union, TextIO, Callable, Dict, Iterator, Set
+import logging
 
 import click
 from linkml_runtime.linkml_model import linkml_files
@@ -34,6 +35,8 @@ class PythonGenerator(Generator):
         self.gen_classvars = gen_classvars
         self.gen_slots = gen_slots
         super().__init__(schema, format, **kwargs)
+        if self.schema.default_prefix == 'linkml' and not self.genmeta:
+            logging.error(f'Generating metamodel without --genmeta is highly inadvised!')
         if not self.schema.source_file and isinstance(self.sourcefile, str) and '\n' not in self.sourcefile:
             self.schema.source_file = os.path.basename(self.sourcefile)
 
@@ -68,28 +71,6 @@ class PythonGenerator(Generator):
             type_prefix = self.namespaces.prefix_for(typ.uri)
             if type_prefix:
                 self.emit_prefixes.add(type_prefix)
-
-    def add_mappings(self, defn: Definition) -> None:
-        """
-        Process any mappings in defn, adding all of the mappings prefixes to the namespace map
-        :param defn: Class or Slot Definition
-        """
-        self.add_id_prefixes(defn)
-        for mapping in defn.mappings:
-            if '://' in mapping:
-                mcurie = self.namespaces.curie_for(mapping)
-                self.logger.warning(f"No namespace defined for URI: {mapping}")
-                if mcurie is None:
-                    return        # Absolute path - no prefix/name
-                else:
-                    mapping = mcurie
-            if ':' not in mapping or len(mapping.split(':')) != 2:
-                raise ValueError(f"Definition {defn.name} - unrecognized mapping: {mapping}")
-            ns = mapping.split(':')[0]
-            self.emit_prefixes.add(ns)
-
-    def add_id_prefixes(self, element: Element) -> None:
-        self.emit_prefixes.update(element.id_prefixes)
 
     def gen_schema(self) -> str:
         # The metamodel uses Enumerations to define itself, so don't import if we are generating the metamodel
@@ -619,7 +600,7 @@ dataclasses._init_fn = dataclasses_init_fn_with_kwargs
             if slot.range in self.schema.classes and not self.schema.classes[slot.range].slots:
                 rlines.append(f'\tself.{aliased_slot_name} = {base_type_name}()')
             else:
-                if self.class_identifier(slot.range) or\
+                if (self.class_identifier(slot.range) and not slot.inlined) or\
                         slot.range in self.schema.types or\
                         slot.range in self.schema.enums:
                     rlines.append(f'\tself.{aliased_slot_name} = {base_type_name}(self.{aliased_slot_name})')
@@ -789,11 +770,6 @@ class {enum_name}(EnumDefinitionImpl):
 
     {self.gen_enum_definition(enum, enum_name)}
     {self.gen_pvs2(enum)}
-
-    def __str__(self) -> str:
-        """ Use only the code of this enumeration when dumping this enumeration to a string. """
-        return self._code.text
-    
 '''.strip()
 
     def gen_pvs(self, enum: EnumDefinition) -> str:
@@ -873,11 +849,11 @@ class {enum_name}(EnumDefinitionImpl):
 @shared_arguments(PythonGenerator)
 @click.command()
 @click.option("--head/--no-head", default=True, help="Emit metadata heading")
-@click.option("--genmeta/--no-genmeta", default=False, help="Generating metamodel")
+@click.option("--genmeta/--no-genmeta", default=False, help="Generating metamodel. Only use this for generating meta.py")
 @click.option("--classvars/--no-classvars", default=True, help="Generate CLASSVAR info")
 @click.option("--slots/--no-slots", default=True, help="Generate Slot information")
 def cli(yamlfile, head=True, genmeta=False, classvars=True, slots=True, **args):
-    """ Generate python classes to represent a LinkML model """
+    """Generate python classes to represent a LinkML model"""
     print(PythonGenerator(yamlfile, emit_metadata=head, genmeta=genmeta, gen_classvars=classvars, gen_slots=slots,  **args).serialize(emit_metadata=head, **args))
 
 
