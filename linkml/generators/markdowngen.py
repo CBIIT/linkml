@@ -101,6 +101,16 @@ class MarkdownGenerator(Generator):
             with redirect_stdout(ixfile):
                 self.frontmatter(f"{self.schema.name} schema mappings")
 
+                def get_uri(mapping_value):
+                    # Special case: URIs for GDC should be in the form
+                    # https://docs.gdc.cancer.gov/Data_Dictionary/viewer/#?view=table-definition-view&id={entity.lower()}&anchor={attribute}
+
+                    # Special case: URIs for PDC should be in the form
+                    # https://pdc.cancer.gov/data-dictionary/dictionaryitem.html?eName={entity}#{attribute}
+
+                    # Otherwise, default to using self.to_uri() to construct a URI from the prefix.
+                    self.to_uri(mapping_value)
+
                 self.header(3, 'Classes')
                 for cls in sorted(self.schema.classes.values(), key=lambda c: c.name):
                     # if not cls.is_a and not cls.mixin and self.is_secondary_ref(cls.name):
@@ -116,10 +126,10 @@ class MarkdownGenerator(Generator):
                     mappings = []
 
                     for mapping in cls.exact_mappings:
-                        mappings.append((self.class_link(cls, use_desc=False), "Direct", f"[{mapping}]({self.to_uri(mapping)})"))
+                        mappings.append((self.class_link(cls, use_desc=False), "Direct", f"[{mapping}]({get_uri(mapping)})"))
 
                     for mapping in cls.close_mappings:
-                        mappings.append((self.class_link(cls, use_desc=False), "Indirect", f"[{mapping}]({self.to_uri(mapping)})"))
+                        mappings.append((self.class_link(cls, use_desc=False), "Indirect", f"[{mapping}]({get_uri(mapping)})"))
 
                     # Lets go through the slots.
                     for slot_name in cls.slots:
