@@ -26,12 +26,24 @@ json_schema_types: Dict[str, Tuple[str, Optional[str]]] = {
 }
 
 class JsonSchemaGenerator(Generator):
+    """
+    Generates JSONSchema documents from a LinkML SchemaDefinition
+
+
+    """
     generatorname = os.path.basename(__file__)
     generatorversion = "0.0.2"
     valid_formats = ["json"]
     visit_all_class_slots = True
 
     def __init__(self, schema: Union[str, TextIO, SchemaDefinition], top_class: Optional[str] = None, **kwargs) -> None:
+        """
+        Instantiation
+
+        :param schema:
+        :param top_class: root class for JSONSchema generation
+        :param kwargs:
+        """
         super().__init__(schema, **kwargs)
         self.schemaobj: JsonObj = None
         self.clsobj: JsonObj = None
@@ -47,14 +59,14 @@ class JsonSchemaGenerator(Generator):
         self.schemaobj = JsonObj(title=self.schema.name,
                                  type="object",
                                  properties={},
-                                 definitions=JsonObj(),
                                  additionalProperties=not_closed)
         for p, c in self.entryProperties.items():
             self.schemaobj['properties'][p] = {
                 'type': "array",
-                'items': {'$ref': f"#/definitions/{camelcase(c)}"}}
+                'items': {'$ref': f"#/$defs/{camelcase(c)}"}}
         self.schemaobj['$schema'] = "http://json-schema.org/draft-07/schema#"
         self.schemaobj['$id'] = self.schema.id
+        self.schemaobj['$defs'] = JsonObj()
 
     def end_schema(self, **_) -> None:
         print(as_json(self.schemaobj, sort_keys=True))
@@ -71,7 +83,7 @@ class JsonSchemaGenerator(Generator):
         return True
 
     def end_class(self, cls: ClassDefinition) -> None:
-        self.schemaobj.definitions[camelcase(cls.name)] = self.clsobj
+        self.schemaobj['$defs'][camelcase(cls.name)] = self.clsobj
 
     def visit_enum(self, enum: EnumDefinition) -> bool:
         # TODO: this only works with explicitly permitted values. It will need to be extended to
@@ -88,7 +100,7 @@ class JsonSchemaGenerator(Generator):
 
         permissible_values_texts = list(map(extract_permissible_text, enum.permissible_values or []))
 
-        self.schemaobj.definitions[camelcase(enum.name)] = JsonObj(
+        self.schemaobj['$defs'][camelcase(enum.name)] = JsonObj(
             title=camelcase(enum.name),
             type='string',
             enum=permissible_values_texts,
@@ -102,10 +114,10 @@ class JsonSchemaGenerator(Generator):
         if slot.range in self.schema.types:
             (typ, fmt) = json_schema_types.get(self.schema.types[slot.range].base.lower(), ("string", None))
         elif slot.range in self.schema.enums:
-            reference = f"#/definitions/{camelcase(slot.range)}"
+            reference = f"#/$defs/{camelcase(slot.range)}"
             typ = 'object'
         elif slot.range in self.schema.classes and slot.inlined:
-            reference = f"#/definitions/{camelcase(slot.range)}"
+            reference = f"#/$defs/{camelcase(slot.range)}"
             typ = 'object'
         else:
             typ = "string"
@@ -160,7 +172,7 @@ Top level class; slots of this class will become top level properties in the jso
 Set additionalProperties=False if closed otherwise true if not closed at the global level
 """)
 def cli(yamlfile, **kwargs):
-    """ Generate JSON Schema representation of a biolink model """
+    """ Generate JSON Schema representation of a LinkML model """
     print(JsonSchemaGenerator(yamlfile, **kwargs).serialize(**kwargs))
 
 
