@@ -342,8 +342,9 @@ class MarkdownGenerator(Generator):
                 for values_from in obj.values_from:
                     enum_name = re.sub(r'^crdch:', '', values_from)
                     self.para(
-                        f'**CodeableConcept Binding:** The Codeable Concept instance should hold a Coding that is ' +
-                        f'populated with values from ' + self.class_type_link(enum_name) + '.')
+                        f'**CodeableConcept Binding:** This property has a Range of CodeableConcept. One of the ' +
+                        f'Codings in this CodeableConcept instance should be populated with values from ' +
+                        self.class_type_link(enum_name) + '.')
 
         # print(f'URI: [{curie}]({uri})')
         print(f'URI: {curie}')  # Replaced with CURIEs since CRDCH URIs are currently non-resolvable.
