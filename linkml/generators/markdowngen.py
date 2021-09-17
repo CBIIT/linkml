@@ -1,4 +1,5 @@
 import os
+import re
 from contextlib import redirect_stdout
 from io import StringIO
 from typing import Union, TextIO, Optional, Set, List, Any, Callable, Dict
@@ -334,6 +335,14 @@ class MarkdownGenerator(Generator):
             obj_type = 'Class'
         self.header(1, f"{obj_type}: {name}" + (f" _(deprecated)_" if obj.deprecated else ""))
         self.para(be(obj.description))
+
+        # Display CodeableConcept as per https://github.com/cancerDHC/ccdhmodel/issues/114
+        if hasattr(obj, 'range') and obj.range == 'CodeableConcept' and hasattr(obj, 'values_from') and obj.values_from is not None:
+            enum_name = re.sub(r'^crdch:', '', obj.values_from)
+            self.para(
+                f'**CodeableConcept Binding:** The Codeable Concept instance should hold a Coding that is populated ' +
+                f'with values from ' + self.class_type_link(enum_name))
+
         print(f'URI: [{curie}]({uri})')
         print()
 
