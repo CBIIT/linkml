@@ -343,7 +343,7 @@ class MarkdownGenerator(Generator):
                     enum_name = re.sub(r'^crdch:', '', values_from)
                     self.para(
                         f'**CodeableConcept Binding:** The Codeable Concept instance should hold a Coding that is ' +
-                        f'populated with values from ' + self.class_type_link(enum_name))
+                        f'populated with values from ' + self.class_type_link(enum_name) + '.')
 
         print(f'URI: [{curie}]({uri})')
         print()
