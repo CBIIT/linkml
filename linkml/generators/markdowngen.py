@@ -347,7 +347,7 @@ class MarkdownGenerator(Generator):
                         self.class_type_link(enum_name) + '.')
 
         # print(f'URI: [{curie}]({uri})')
-        print(f'URI: {curie}')  # Replaced with CURIEs since CRDCH URIs are currently non-resolvable.
+        print(f'URI: `{curie}`')  # Replaced with CURIEs since CRDCH URIs are currently non-resolvable.
         print()
 
     def element_properties(self, obj: Element) -> None:
