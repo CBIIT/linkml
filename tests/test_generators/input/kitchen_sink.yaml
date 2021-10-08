@@ -159,11 +159,24 @@ classes:
     slots:
       - married to
 
+  CompanyValue:
+    is_a: Event
+    attributes:
+      value:
+        description: The value of this company in USD at a particular point in time.
+        range: integer
+
   Company:
     is_a: Organization
     attributes:
       ceo:
         range: Person
+      value:
+        description: The value this company has had at different times.
+        range: CompanyValue
+        multivalued: true
+        inlined: true
+        inlined_as_list: true
 
   Dataset:
     attributes:
