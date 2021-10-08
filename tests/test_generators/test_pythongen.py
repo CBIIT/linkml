@@ -31,7 +31,7 @@ class PythonGenTestCase(unittest.TestCase):
         """ python """
         kitchen_module = make_python(True)
         c = kitchen_module.Company('ROR:1')
-        self.assertEqual("Company(id='ROR:1', name=None, aliases=[], ceo=None)", str(c))
+        self.assertEqual("Company(id='ROR:1', name=None, aliases=[], ceo=None, value=[])", str(c))
         h = kitchen_module.EmploymentEvent(employed_at=c.id)
         self.assertEqual(
             "EmploymentEvent(started_at_time=None, ended_at_time=None, is_current=None, employed_at='ROR:1')", str(h))
