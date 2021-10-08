@@ -1,11 +1,13 @@
 import keyword
 import os
 import re
+from types import ModuleType
 from typing import Optional, Tuple, List, Union, TextIO, Callable, Dict, Iterator, Set
 import logging
 
 import click
 from linkml_runtime.linkml_model import linkml_files
+from linkml_runtime.utils.compile_python import compile_python
 from rdflib import URIRef
 
 import linkml
@@ -20,6 +22,11 @@ from linkml_runtime.utils.metamodelcore import builtinnames
 
 
 class PythonGenerator(Generator):
+    """
+    Generates Python dataclasses from a LinkML model
+
+    
+    """
     generatorname = os.path.basename(__file__)
     generatorversion = PYTHON_GEN_VERSION
     valid_formats = ['py']
@@ -39,6 +46,14 @@ class PythonGenerator(Generator):
             logging.error(f'Generating metamodel without --genmeta is highly inadvised!')
         if not self.schema.source_file and isinstance(self.sourcefile, str) and '\n' not in self.sourcefile:
             self.schema.source_file = os.path.basename(self.sourcefile)
+
+    def compile_module(self, **kwargs) -> ModuleType:
+        """
+        Compiles generated python code to a module
+        :return:
+        """
+        pycode = self.serialize(**kwargs)
+        return compile_python(pycode)
 
     def visit_schema(self, **kwargs) -> None:
         # Add explicitly declared prefixes
@@ -296,6 +311,10 @@ dataclasses._init_fn = dataclasses_init_fn_with_kwargs
         postinits = self.gen_postinits(cls)
 
         wrapped_description = f'\n\t"""\n\t{wrapped_annotation(be(cls.description))}\n\t"""' if be(cls.description) else ''
+
+        if self.is_class_unconstrained(cls):
+            return f'\n{self.class_or_type_name(cls.name)} = Any'
+
 
         return ('\n@dataclass' if slotdefs else '') + \
                f'\nclass {self.class_or_type_name(cls.name)}{parentref}:{wrapped_description}' + \
@@ -576,6 +595,10 @@ dataclasses._init_fn = dataclasses_init_fn_with_kwargs
         """ Generate python post init rules for slot in class
         """
         rlines: List[str] = []
+
+        if slot.range in self.schema.classes:
+            if self.is_class_unconstrained(self.schema.classes[slot.range]):
+                return ""
 
         aliased_slot_name = self.slot_name(slot.name)           # Mangled name by which the slot is known in python
         range_type, base_type, base_type_name = self.class_reference_type(slot, cls)

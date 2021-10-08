@@ -25,11 +25,13 @@ Documentation
 
    intro/overview
    intro/install
+   intro/tutorial
    schemas/index
    data/index
    generators/index
    examples
    ecosystem
+   specifications/linkml-spec.md
    faq/index
    
 Metamodel Reference

@@ -18,7 +18,7 @@ URI: [linkml:Definition](https://w3id.org/linkml/Definition)
  * [ClassDefinition](ClassDefinition.md) - the definition of a class or interface
  * [SlotDefinition](SlotDefinition.md) - the definition of a property or a slot
 
-## Referenced by class
+## Referenced by Class
 
  *  **[Definition](Definition.md)** *[apply_to](apply_to.md)*  <sub>0..\*</sub>  **[Definition](Definition.md)**
  *  **[Definition](Definition.md)** *[is_a](is_a.md)*  <sub>0..1</sub>  **[Definition](Definition.md)**
@@ -75,6 +75,10 @@ For example, a Measurement class may have 3 fields: unit, value, and string_valu
 
  * [name](name.md)  <sub>1..1</sub>
      * Description: the unique name of the element within the context of the schema.  Name is combined with the default prefix to form the globally unique subject of the target class.
+     * Range: [String](types/String.md)
+     * in subsets: (owl)
+ * [title](title.md)  <sub>0..1</sub>
+     * Description: the official title of the element
      * Range: [String](types/String.md)
      * in subsets: (owl)
  * [id_prefixes](id_prefixes.md)  <sub>0..\*</sub>

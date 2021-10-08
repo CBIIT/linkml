@@ -13,7 +13,7 @@ URI: [linkml:SlotDefinition](https://w3id.org/linkml/SlotDefinition)
 
  *  is_a: [Definition](Definition.md) - base class for definitions
 
-## Referenced by class
+## Referenced by Class
 
  *  **[ClassDefinition](ClassDefinition.md)** *[attributes](attributes.md)*  <sub>0..\*</sub>  **[SlotDefinition](SlotDefinition.md)**
  *  **[ClassDefinition](ClassDefinition.md)** *[defining_slots](defining_slots.md)*  <sub>0..\*</sub>  **[SlotDefinition](SlotDefinition.md)**
@@ -154,6 +154,10 @@ implicitly asserts Y is an instance of C2
 
  * [name](name.md)  <sub>1..1</sub>
      * Description: the unique name of the element within the context of the schema.  Name is combined with the default prefix to form the globally unique subject of the target class.
+     * Range: [String](types/String.md)
+     * in subsets: (owl)
+ * [title](title.md)  <sub>0..1</sub>
+     * Description: the official title of the element
      * Range: [String](types/String.md)
      * in subsets: (owl)
  * [id_prefixes](id_prefixes.md)  <sub>0..\*</sub>

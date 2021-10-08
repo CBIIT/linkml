@@ -9,7 +9,7 @@ URI: [linkml:Element](https://w3id.org/linkml/Element)
 
 [![img](images/Element.svg)](images/Element.svg)
 
-## Uses Mixins
+## Uses Mixin
 
  *  mixin: [Extensible](Extensible.md) - mixin for classes that support extension
  *  mixin: [Annotatable](Annotatable.md) - mixin for classes that support annotations
@@ -23,7 +23,7 @@ URI: [linkml:Element](https://w3id.org/linkml/Element)
  * [SubsetDefinition](SubsetDefinition.md) - the name and description of a subset
  * [TypeDefinition](TypeDefinition.md) - A data type definition.
 
-## Referenced by class
+## Referenced by Class
 
  *  **[SlotDefinition](SlotDefinition.md)** *[range](range.md)*  <sub>0..1</sub>  **[Element](Element.md)**
 
@@ -34,6 +34,10 @@ URI: [linkml:Element](https://w3id.org/linkml/Element)
 
  * [name](name.md)  <sub>1..1</sub>
      * Description: the unique name of the element within the context of the schema.  Name is combined with the default prefix to form the globally unique subject of the target class.
+     * Range: [String](types/String.md)
+     * in subsets: (owl)
+ * [title](title.md)  <sub>0..1</sub>
+     * Description: the official title of the element
      * Range: [String](types/String.md)
      * in subsets: (owl)
  * [id_prefixes](id_prefixes.md)  <sub>0..\*</sub>

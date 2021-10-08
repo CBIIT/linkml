@@ -13,7 +13,7 @@ URI: [linkml:EnumDefinition](https://w3id.org/linkml/EnumDefinition)
 
  *  is_a: [Element](Element.md) - a named element in the model
 
-## Referenced by class
+## Referenced by Class
 
  *  **[SchemaDefinition](SchemaDefinition.md)** *[enums](enums.md)*  <sub>0..\*</sub>  **[EnumDefinition](EnumDefinition.md)**
 
@@ -42,6 +42,10 @@ URI: [linkml:EnumDefinition](https://w3id.org/linkml/EnumDefinition)
 
  * [name](name.md)  <sub>1..1</sub>
      * Description: the unique name of the element within the context of the schema.  Name is combined with the default prefix to form the globally unique subject of the target class.
+     * Range: [String](types/String.md)
+     * in subsets: (owl)
+ * [title](title.md)  <sub>0..1</sub>
+     * Description: the official title of the element
      * Range: [String](types/String.md)
      * in subsets: (owl)
  * [id_prefixes](id_prefixes.md)  <sub>0..\*</sub>

@@ -13,7 +13,7 @@ URI: [linkml:ClassDefinition](https://w3id.org/linkml/ClassDefinition)
 
  *  is_a: [Definition](Definition.md) - base class for definitions
 
-## Referenced by class
+## Referenced by Class
 
  *  **[ClassDefinition](ClassDefinition.md)** *[class_definition➞apply_to](class_definition_apply_to.md)*  <sub>0..\*</sub>  **[ClassDefinition](ClassDefinition.md)**
  *  **[ClassDefinition](ClassDefinition.md)** *[class_definition➞is_a](class_definition_is_a.md)*  <sub>0..1</sub>  **[ClassDefinition](ClassDefinition.md)**
@@ -63,6 +63,10 @@ URI: [linkml:ClassDefinition](https://w3id.org/linkml/ClassDefinition)
 
  * [name](name.md)  <sub>1..1</sub>
      * Description: the unique name of the element within the context of the schema.  Name is combined with the default prefix to form the globally unique subject of the target class.
+     * Range: [String](types/String.md)
+     * in subsets: (owl)
+ * [title](title.md)  <sub>0..1</sub>
+     * Description: the official title of the element
      * Range: [String](types/String.md)
      * in subsets: (owl)
  * [id_prefixes](id_prefixes.md)  <sub>0..\*</sub>
