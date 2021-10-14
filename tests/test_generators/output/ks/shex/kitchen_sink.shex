@@ -125,6 +125,12 @@ core:Agent CLOSED {
     } OR @<BirthEvent> OR @<EmploymentEvent> OR @<MarriageEvent> OR @<MedicalEvent>
 )
 
+<FakeClass> CLOSED {
+    (  $<FakeClass_tes> <test_attribute> @linkml:String ? ;
+       rdf:type [ <FakeClass> ] ?
+    )
+}
+
 <FamilialRelationship> CLOSED {
     (  $<FamilialRelationship_tes> (  &<Relationship_tes> ;
           rdf:type [ <Relationship> ] ? ;
@@ -179,7 +185,7 @@ core:Agent CLOSED {
 <Person> CLOSED {
     (  $<Person_tes> (  &<HasAliases_tes> ;
           rdf:type [ <HasAliases> ] ? ;
-          <name> @linkml:String ? ;
+          core:name @linkml:String ? ;
           <has_employment_history> @<EmploymentEvent> * ;
           <has_familial_relationships> @<FamilialRelationship> * ;
           <has_medical_history> @<MedicalEvent> * ;
