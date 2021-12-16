@@ -42,11 +42,13 @@ class OOClass:
     """
     name: SAFE_NAME
     is_a: Optional[SAFE_NAME] = None
+    abstract: Optional[bool] = None
     mixins: List[SAFE_NAME] = field(default_factory=lambda: [])
     fields: List[OOField] = field(default_factory=lambda: [])
     annotations: List[ANNOTATION] = field(default_factory=lambda: [])
     package: PACKAGE = None
     source_class: ClassDefinition = None
+
 
 class OOCodeGenerator(Generator):
     package: PACKAGE = "example"
@@ -80,7 +82,7 @@ class OOCodeGenerator(Generator):
         sv: SchemaView
         sv = self.schemaview
         docs = []
-        for cn in sv.all_class(imports=False):
+        for cn in sv.all_classes(imports=False):
             c = sv.get_class(cn)
             safe_cn = camelcase(cn)
             oodoc = OODocument(name=safe_cn, package=self.package, source_schema=sv.schema)
@@ -88,6 +90,8 @@ class OOCodeGenerator(Generator):
             ooclass = OOClass(name=safe_cn, package=self.package, fields=[], source_class=c)
             # currently hardcoded for java style, one class per doc
             oodoc.classes = [ooclass]
+            if c.abstract:
+                ooclass.abstract = c.abstract
             if c.is_a:
                 ooclass.is_a = self.get_class_name(c.is_a)
                 parent_slots = sv.class_slots(c.is_a)
@@ -108,14 +112,14 @@ class OOCodeGenerator(Generator):
                 if range is None:
                     range = 'string'
 
-                if range in sv.all_class():
+                if range in sv.all_classes():
                     range = self.get_class_name(range)
-                elif range in sv.all_type():
+                elif range in sv.all_types():
                     t = sv.get_type(range)
                     range = self.map_type(t)
                     if range is None: # If mapping fails,
                         range = self.map_type(sv.all_type().get('string'))
-                elif range in sv.all_enum():
+                elif range in sv.all_enums():
                     range = self.map_type(sv.all_type().get('string'))
                 else:
                     raise Exception(f'Unknown range {range}')

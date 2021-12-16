@@ -34,6 +34,9 @@ prefixes:
   ROR: http://example.org/ror/
   A: http://example.org/activities/
   P: http://example.org/person/
+  skos: http://www.w3.org/2004/02/skos/core#
+  bizcodes: https://example.org/bizcodes/
+  schema: http://schema.org/
 default_prefix: ks
 see_also:
   - https://example.org/
@@ -59,9 +62,16 @@ classes:
     mixin: true
     attributes:
       aliases:
+        slot_uri: skos:altLabel
         multivalued: true
 
+  Friend:
+    abstract: true
+    slots:
+      - name
+
   Person:
+    description: A person, living or dead
     in_subset:
       - subset A
     mixins:
@@ -102,6 +112,7 @@ classes:
     slots:
       - id
       - name
+      - in code system
 
   DiagnosisConcept:
     is_a: Concept
@@ -141,6 +152,11 @@ classes:
     is_a: Event
     slots:
       - employed at
+      - type
+    slot_usage:
+      type:
+        range: EmploymentEventType
+        required: false
 
   MedicalEvent:
     is_a: Event
@@ -166,8 +182,16 @@ classes:
     attributes:
       ceo:
         range: Person
+        slot_uri: schema:ceo
+        ## TODO - schemaview requires all attributes to have explicit uri otherwise slot_uri fails
+
+  CodeSystem:
+    slots:
+      - id
+      - name
 
   Dataset:
+    tree_root: true
     attributes:
       persons:
         range: Person
@@ -184,11 +208,24 @@ classes:
         inlined_as_list: true
         inlined: true
         multivalued: true
+      code systems:
+        range: CodeSystem
+        inlined: true
+        multivalued: true
 
   FakeClass:
     deprecated: this is not a real class, we are using it to test deprecation
     attributes:
       test_attribute:
+
+  class with spaces:
+    attributes:
+      slot with space 1:
+  subclass test:
+    is_a: class with spaces
+    attributes:
+      slot with space 2:
+        range: class with spaces
 
 slots:
   employed at:
@@ -236,6 +273,7 @@ slots:
     range: Address
     multivalued: True
   age in years:
+    description: number of years since birth
     range: integer
     minimum_value: 0
     maximum_value: 999
@@ -248,6 +286,8 @@ slots:
   city:
   has birth event:
     range: BirthEvent
+  in code system:
+    range: CodeSystem
 
 enums:
   FamilialRelationshipType:
@@ -256,3 +296,15 @@ enums:
       PARENT_OF:
       CHILD_OF:
   DiagnosisType:
+    permissible_values:
+      TODO:
+  EmploymentEventType:
+    permissible_values:
+      HIRE:
+        meaning: bizcodes:001
+      FIRE:
+        meaning: bizcodes:002
+      PROMOTION:
+        meaning: bizcodes:003
+      TRANSFER:
+        meaning: bizcodes:004

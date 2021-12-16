@@ -1,4 +1,6 @@
+import logging
 import os
+from copy import deepcopy
 from typing import Union, TextIO, Optional, Dict, Tuple
 
 import click
@@ -24,6 +26,8 @@ json_schema_types: Dict[str, Tuple[str, Optional[str]]] = {
     "xsddatetime": ("string", "date-time"),
     "xsdtime": ("string", "time"),
 }
+
+WITH_OPTIONAL_IDENTIFIER_SUFFIX = '__identifier_optional'
 
 class JsonSchemaGenerator(Generator):
     """
@@ -53,6 +57,9 @@ class JsonSchemaGenerator(Generator):
         # JSON-Schema does not have inheritance,
         # so we duplicate slots from inherited parents and mixins
         self.visit_all_slots = True
+        # Maps e.g. Person --> Person__identifier_optional
+        # for use when Person is a range of an inlined-as-dict slot
+        self.optional_identifier_class_map: Dict[str, Tuple[str, str]] = {}
 
     def visit_schema(self, inline: bool = False, not_closed=True, **kwargs) -> None:    
         self.inline = inline
@@ -67,8 +74,15 @@ class JsonSchemaGenerator(Generator):
         self.schemaobj['$schema'] = "http://json-schema.org/draft-07/schema#"
         self.schemaobj['$id'] = self.schema.id
         self.schemaobj['$defs'] = JsonObj()
+        self.schemaobj['required'] = []
 
     def end_schema(self, **_) -> None:
+        # create more lax version of every class that is used as an inlined dict reference;
+        # in this version, the primary key/identifier is optional, since it is used as the key of the dict
+        for cls_name, (id_slot, cls_name_lax) in self.optional_identifier_class_map.items():
+            lax_cls = deepcopy(self.schemaobj['$defs'][cls_name])
+            lax_cls.required.remove(id_slot)
+            self.schemaobj['$defs'][cls_name_lax] = lax_cls
         print(as_json(self.schemaobj, sort_keys=True))
 
     def visit_class(self, cls: ClassDefinition) -> bool:
@@ -111,23 +125,41 @@ class JsonSchemaGenerator(Generator):
         typ = None          # JSON Schema type (https://json-schema.org/understanding-json-schema/reference/type.html)
         reference = None    # Reference to a JSON schema entity (https://json-schema.org/understanding-json-schema/structuring.html#ref)
         fmt = None          # JSON Schema format (https://json-schema.org/understanding-json-schema/reference/string.html#format)
+        reference_obj = None
         if slot.range in self.schema.types:
             (typ, fmt) = json_schema_types.get(self.schema.types[slot.range].base.lower(), ("string", None))
         elif slot.range in self.schema.enums:
-            reference = f"#/$defs/{camelcase(slot.range)}"
+            reference_obj = camelcase(slot.range)
+            reference = f"#/$defs/{reference_obj}"
             typ = 'object'
         elif slot.range in self.schema.classes and slot.inlined:
-            reference = f"#/$defs/{camelcase(slot.range)}"
+            reference_obj = camelcase(slot.range)
+            reference = f"#/$defs/{reference_obj}"
             typ = 'object'
         else:
             typ = "string"
 
         if slot.inlined:
+            range_cls = self.schema.classes[slot.range]
+            id_slot = None
+            for sn in range_cls.slots:
+                s = self.schema.slots[sn]
+                if s.identifier or s.key:
+                    id_slot = s
+                    break
             # If inline we have to include redefined slots
             ref = JsonObj()
             ref['$ref'] = reference
             if slot.multivalued:
-                prop = JsonObj(type="array", items=ref)
+                if id_slot is not None and not slot.inlined_as_list:
+                    prop = JsonObj(additionalProperties={'$ref': f'{reference}{WITH_OPTIONAL_IDENTIFIER_SUFFIX}'})
+                    if id_slot.alias is not None:
+                        id_slot_name = id_slot.alias
+                    else:
+                        id_slot_name = id_slot.name
+                    self.optional_identifier_class_map[reference_obj] = (id_slot_name, f'{reference_obj}{WITH_OPTIONAL_IDENTIFIER_SUFFIX}')
+                else:
+                    prop = JsonObj(type="array", items=ref)
             else:
                 prop = ref
         else:
@@ -158,9 +190,12 @@ class JsonSchemaGenerator(Generator):
         if slot.maximum_value is not None:
             prop.maximum = slot.maximum_value
         self.clsobj.properties[underscore(aliased_slot_name)] = prop
-        if self.topCls is not None and camelcase(self.topCls) == camelcase(cls.name) or \
-                self.topCls is None and cls.tree_root:
+        if (self.topCls is not None and camelcase(self.topCls) == camelcase(cls.name)) or \
+                (self.topCls is None and cls.tree_root):
             self.schemaobj.properties[underscore(aliased_slot_name)] = prop
+
+            if slot.required:
+                self.schemaobj.required.append(aliased_slot_name)
 
 
 @shared_arguments(JsonSchemaGenerator)
@@ -172,7 +207,7 @@ Note that declaring a slot as inlined: true will always inline the class
 @click.option("-t", "--top-class", help="""
 Top level class; slots of this class will become top level properties in the json-schema
 """)
-@click.option("--not-closed/--closed", default=True, help="""
+@click.option("--not-closed/--closed", default=True, show_default=True, help="""
 Set additionalProperties=False if closed otherwise true if not closed at the global level
 """)
 def cli(yamlfile, **kwargs):

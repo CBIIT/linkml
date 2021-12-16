@@ -20,6 +20,7 @@ And links, e.g to [Person](Person.md)
 ### Records
 
  * [Address](Address.md)
+ * [CodeSystem](CodeSystem.md)
  * [Concept](Concept.md)
      * [DiagnosisConcept](DiagnosisConcept.md)
      * [ProcedureConcept](ProcedureConcept.md)
@@ -30,30 +31,35 @@ And links, e.g to [Person](Person.md)
      * [MarriageEvent](MarriageEvent.md)
      * [MedicalEvent](MedicalEvent.md)
  * [FakeClass](FakeClass.md)
+ * [Friend](Friend.md)
  * [Organization](Organization.md)
      * [Company](Company.md)
- * [Person](Person.md)
+ * [Person](Person.md) - A person, living or dead
  * [Place](Place.md)
  * [Relationship](Relationship.md)
      * [FamilialRelationship](FamilialRelationship.md)
  * [Activity](Activity.md) - a provence-generating activity
  * [Agent](Agent.md) - a provence-generating agent
+ * [ClassWithSpaces](ClassWithSpaces.md)
+     * [SubclassTest](SubclassTest.md)
 
 ### Traits
 
  * [HasAliases](HasAliases.md)
  * [WithLocation](WithLocation.md)
 
-### Slots
+### Fields
 
  * [acted on behalf of](acted_on_behalf_of.md)
  * [activity set](activity_set.md)
  * [addresses](addresses.md)
- * [age in years](age_in_years.md)
+ * [age in years](age_in_years.md) - number of years since birth
  * [agent set](agent_set.md)
  * [city](city.md)
+ * [➞slot with space 1](classWithSpaces__slot_with_space_1.md)
  * [➞ceo](company__ceo.md)
  * [➞activities](dataset__activities.md)
+ * [➞code systems](dataset__code_systems.md)
  * [➞companies](dataset__companies.md)
  * [➞persons](dataset__persons.md)
  * [description](description.md)
@@ -68,6 +74,7 @@ And links, e.g to [Person](Person.md)
  * [has medical history](has_medical_history.md)
  * [➞aliases](hasAliases__aliases.md)
  * [id](id.md)
+ * [in code system](in_code_system.md)
  * [in location](in_location.md)
  * [is current](is_current.md)
  * [married to](married_to.md)
@@ -78,7 +85,9 @@ And links, e.g to [Person](Person.md)
      * [FamilialRelationship➞related to](FamilialRelationship_related_to.md)
  * [started at time](started_at_time.md)
  * [street](street.md)
+ * [➞slot with space 2](subclassTest__slot_with_space_2.md)
  * [type](type.md)
+     * [EmploymentEvent➞type](EmploymentEvent_type.md)
      * [FamilialRelationship➞type](FamilialRelationship_type.md)
  * [used](used.md)
  * [was associated with](was_associated_with.md)
@@ -88,6 +97,7 @@ And links, e.g to [Person](Person.md)
 ### Enums
 
  * [DiagnosisType](DiagnosisType.md)
+ * [EmploymentEventType](EmploymentEventType.md)
  * [FamilialRelationshipType](FamilialRelationshipType.md)
 
 ### Subsets

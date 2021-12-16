@@ -7,10 +7,12 @@ from linkml_runtime.utils.compile_python import compile_python
 from linkml_runtime.dumpers.yaml_dumper import YAMLDumper
 from linkml_runtime.dumpers.json_dumper import JSONDumper
 from linkml_runtime.dumpers.rdf_dumper import RDFDumper
+from linkml_runtime.dumpers.rdflib_dumper import RDFLibDumper
 from linkml_runtime.dumpers.csv_dumper import CSVDumper
 from linkml_runtime.loaders.yaml_loader import YAMLLoader
 from linkml_runtime.loaders.json_loader import JSONLoader
 from linkml_runtime.loaders.rdf_loader import RDFLoader
+from linkml_runtime.loaders.rdflib_loader import RDFLibLoader
 from linkml_runtime.loaders.csv_loader import CSVLoader
 from linkml_runtime.loaders.loader_root import Loader
 from linkml_runtime.utils.schemaview import SchemaView
@@ -21,7 +23,9 @@ from linkml.generators.jsonldcontextgen import ContextGenerator
 dumpers_loaders = {
     'yaml': (YAMLDumper, YAMLLoader),
     'json': (JSONDumper, JSONLoader),
-    'rdf': (RDFDumper, RDFLoader),
+    'rdf': (RDFLibDumper, RDFLibLoader),
+    'ttl': (RDFLibDumper, RDFLibLoader),
+    'json-ld': (RDFDumper, RDFLoader),
     'csv': (CSVDumper, CSVLoader),
     'tsv': (CSVDumper, CSVLoader),
 }
@@ -60,6 +64,17 @@ def _get_context(schema) -> str:
     return ContextGenerator(schema).serialize()
 
 def infer_root_class(sv: SchemaView) -> Optional[ClassDefinitionName]:
+    """
+    Infer the class that should be at the root of the object tree
+
+    (Note this is distinct from the root of the class hierarchy)
+
+    If a class is explicitly designated with tree_root, use this.
+    Otherwise use the class that is not referenced as a range in any other class.
+    """
+    for c in sv.all_class().values():
+        if c.tree_root:
+            return c.name
     refs = defaultdict(int)
     for cn in sv.all_class().keys():
         for sn in sv.class_slots(cn):

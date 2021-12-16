@@ -421,7 +421,7 @@ class MarkdownGenerator(Generator):
             prop_list('In Subsets', obj.in_subset)
             # from_schema
             # imported_from
-            prop_list('See also', obj.see_also)
+            prop_list('See also', [f'[{v}]({v})' for v in obj.see_also])
             #prop_list('Exact Mappings', obj.exact_mappings)
             prop_list('Direct Mappings', obj.exact_mappings)
             #prop_list('Close Mappings', obj.close_mappings)
@@ -737,8 +737,8 @@ class MarkdownGenerator(Generator):
 @shared_arguments(MarkdownGenerator)
 @click.command()
 @click.option("--dir", "-d", required=True, help="Output directory")
-@click.option("--classes", "-c", default=None, multiple=True, help="Class(es) to emit")
-@click.option("--map-fields", "-M", default=None, multiple=True, help="Map metamodel fields, e.g. slot=field")
+@click.option("--classes", "-c", multiple=True, help="Class(es) to emit")
+@click.option("--map-fields", "-M", multiple=True, help="Map metamodel fields, e.g. slot=field")
 @click.option("--img", "-i",  is_flag=True, help="Download YUML images to 'image' directory")
 @click.option("--index-file", "-I", help="Name of markdown file that holds index")
 @click.option("--noimages", is_flag=True, help="Do not (re-)generate images")

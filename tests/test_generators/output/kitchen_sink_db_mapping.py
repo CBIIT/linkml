@@ -45,6 +45,13 @@ tbl_BirthEvent = Table('BirthEvent', metadata,
     Column('is_current', Text, primary_key=True),
     Column('in_location', Text, ForeignKey('Place.id'), primary_key=True),
 )
+tbl_class_with_spaces = Table('class_with_spaces', metadata, 
+    Column('slot_with_space_1', Text, primary_key=True),
+)
+tbl_CodeSystem = Table('CodeSystem', metadata, 
+    Column('id', Text, primary_key=True),
+    Column('name', Text),
+)
 tbl_Company = Table('Company', metadata, 
     Column('id', Text, primary_key=True),
     Column('name', Text),
@@ -53,21 +60,25 @@ tbl_Company = Table('Company', metadata,
 tbl_Concept = Table('Concept', metadata, 
     Column('id', Text, primary_key=True),
     Column('name', Text),
+    Column('in_code_system', Text, ForeignKey('CodeSystem.id')),
 )
 tbl_Dataset = Table('Dataset', metadata, 
     Column('persons', Text, primary_key=True),
     Column('companies', Text, primary_key=True),
     Column('activities', Text, primary_key=True),
+    Column('code_systems', Text, primary_key=True),
 )
 tbl_DiagnosisConcept = Table('DiagnosisConcept', metadata, 
     Column('id', Text, primary_key=True),
     Column('name', Text),
+    Column('in_code_system', Text, ForeignKey('CodeSystem.id')),
 )
 tbl_EmploymentEvent = Table('EmploymentEvent', metadata, 
     Column('started_at_time', Text, primary_key=True),
     Column('ended_at_time', Text, primary_key=True),
     Column('is_current', Text, primary_key=True),
     Column('employed_at', Text, ForeignKey('Company.id'), primary_key=True),
+    Column('type', Text, primary_key=True),
     Column('Person_id', Text, ForeignKey('Person.id'), primary_key=True),
 )
 tbl_Event = Table('Event', metadata, 
@@ -118,12 +129,17 @@ tbl_Place = Table('Place', metadata,
 tbl_ProcedureConcept = Table('ProcedureConcept', metadata, 
     Column('id', Text, primary_key=True),
     Column('name', Text),
+    Column('in_code_system', Text, ForeignKey('CodeSystem.id')),
 )
 tbl_Relationship = Table('Relationship', metadata, 
     Column('started_at_time', Text, primary_key=True),
     Column('ended_at_time', Text, primary_key=True),
     Column('related_to', Text, primary_key=True),
     Column('type', Text, primary_key=True),
+)
+tbl_subclass_test = Table('subclass_test', metadata, 
+    Column('slot_with_space_1', Text, primary_key=True),
+    Column('slot_with_space_2', Text, primary_key=True),
 )
 tbl_Company_aliases = Table('Company_aliases', metadata, 
     Column('backref_id', Text, ForeignKey('Company.id'), primary_key=True),
@@ -148,6 +164,10 @@ mapper_registry.map_imperatively(Address, tbl_Address, properties={
 mapper_registry.map_imperatively(Agent, tbl_agent, properties={
 })
 mapper_registry.map_imperatively(BirthEvent, tbl_BirthEvent, properties={
+})
+mapper_registry.map_imperatively(ClassWithSpaces, tbl_class_with_spaces, properties={
+})
+mapper_registry.map_imperatively(CodeSystem, tbl_CodeSystem, properties={
 })
 mapper_registry.map_imperatively(Company, tbl_Company, properties={
 })
@@ -202,4 +222,6 @@ mapper_registry.map_imperatively(Place, tbl_Place, properties={
 mapper_registry.map_imperatively(ProcedureConcept, tbl_ProcedureConcept, properties={
 })
 mapper_registry.map_imperatively(Relationship, tbl_Relationship, properties={
+})
+mapper_registry.map_imperatively(SubclassTest, tbl_subclass_test, properties={
 })
